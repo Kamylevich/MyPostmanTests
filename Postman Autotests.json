@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "6213f8f3-ec5a-4fb0-a056-1ca64a7fca1a",
+		"name": "Postman Autotests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateUserWithTasks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"Name и Email как переменные сохранены\", function () {",
+							"    var jsonData = pm.response.json();",
+							"});",
+							"pm.environment.set(\"Name\", jsonData.name);",
+							"pm.environment.set(\"Email\", jsonData.email);",
+							"",
+							"",
+							"pm.test(\"Id задачи установлен\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    //pm.expect(jsonData.value).to.eql(\"100\");",
+							"});",
+							"pm.environment.set(\"Id\", jsonData.tasks[0].id);",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);})",
+							"",
+							"//users.bugred.ru: переиспользование переменных",
+							"//Что нужно сделать",
+							"//Создать нового пользователя с задачей через метод createuserwithtasks",
+							"//Добавить эту задачу в крон через метод addtaskincron ",
+							"//(email_owner у таких задач всегда manager@mail.ru. ",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "k{{$randomInt}}@mail.ru",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "K1{{$randomInt}}",
+							"type": "text"
+						},
+						{
+							"key": "tasks[0][title]",
+							"value": "Попытка номер 2",
+							"type": "text"
+						},
+						{
+							"key": "tasks[0][description]",
+							"value": "Получилось",
+							"type": "text"
+						},
+						{
+							"key": "tasks[1][title]",
+							"value": "ну как?",
+							"type": "text"
+						},
+						{
+							"key": "tasks[1][description]",
+							"value": "все отлично!",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/createuserwithtasks",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"createuserwithtasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddTaskInCrone",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Расписание успешно добавлено \", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.type).to.eql(\"success\");",
+							"    console.log(jsonData);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email_owner",
+							"value": "{{email_owner}}",
+							"type": "text"
+						},
+						{
+							"key": "task_id",
+							"value": "{{Id}}",
+							"type": "text"
+						},
+						{
+							"key": "hours",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "minutes",
+							"value": "04",
+							"type": "text"
+						},
+						{
+							"key": "month",
+							"value": "5",
+							"type": "text"
+						},
+						{
+							"key": "days",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "day_weeks",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/addtaskincron",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"addtaskincron"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserOneField",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Проверка статус кода\", function () {",
+							"    if (pm.environment.get(\"Email\")) {",
+							"        pm.test(\"Status code is 200\", function () {",
+							"            pm.response.to.have.status(200);",
+							"        });",
+							"         var jsonData = pm.response.json();",
+							"         pm.test(\"Поле dog изменено на \"+jsonData.message, function () {",
+							"        var jsonData = pm.response.json();",
+							"        pm.expect(jsonData.message).to.eql(jsonData.message);",
+							"        console.log(jsonData);",
+							"        });",
+							"    ",
+							"     } else {",
+							"",
+							"        pm.test(\"Status code is 404\", function () {",
+							"            pm.response.to.have.status(404);",
+							"        });",
+							"        postman.setNextRequest(null);",
+							"} });",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "{{Name}}",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "{{Email}}",
+							"type": "text"
+						},
+						{
+							"key": "field",
+							"value": "dog",
+							"type": "text"
+						},
+						{
+							"key": "value",
+							"value": "Злая и большая",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/useronefield",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"useronefield"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.environment.set(\"Email\", null);",
+							"});",
+							"",
+							"postman.setNextRequest(\"UserOneField\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "{{Name}}",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "{{Email}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/DeleteUser",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"DeleteUser"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
